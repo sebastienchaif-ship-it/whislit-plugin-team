@@ -16,6 +16,11 @@
         <button type="submit" class="btn btn-primary">Create</button>
     </form>
 
+    {# Dev only: exposes the "move" CSRF token for the back-end E2E checks (the real page has a "Move to" select per item). #}
+    <form method="post" action="{{ path('ps_summit_wishlist_move', {itemId: 0}) }}" hidden>
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_move') }}">
+    </form>
+
     <ul class="list-group">
         {% for list in wishlists %}
             <li class="list-group-item d-flex align-items-center gap-2" {{ sylius_test_html_attribute('wishlist-list', list.id) }}>
