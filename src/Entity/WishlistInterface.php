@@ -11,11 +11,15 @@ use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Resource\Model\ResourceInterface;
 
 /**
- * Contract agreed with the entity side (feat/back-entity).
- * A wishlist belongs either to a customer or to a guest token, always within one channel.
+ * A wishlist belongs either to a logged-in customer (customer set)
+ * or to a guest identified by a cookie token (token set), always within a channel.
  */
 interface WishlistInterface extends ResourceInterface
 {
+    public function getToken(): ?string;
+
+    public function setToken(?string $token): void;
+
     public function getCustomer(): ?CustomerInterface;
 
     public function setCustomer(?CustomerInterface $customer): void;
@@ -24,16 +28,25 @@ interface WishlistInterface extends ResourceInterface
 
     public function setChannel(?ChannelInterface $channel): void;
 
-    public function getToken(): ?string;
-
-    public function setToken(?string $token): void;
-
-    /** @return Collection<array-key, WishlistItemInterface> */
+    /** @return Collection<int, WishlistItemInterface> */
     public function getItems(): Collection;
 
-    public function hasVariant(ProductVariantInterface $variant): bool;
+    public function hasItems(): bool;
 
+    public function hasItem(WishlistItemInterface $item): bool;
+
+    /** Adds the item unless the same variant is already in the wishlist. */
     public function addItem(WishlistItemInterface $item): void;
 
     public function removeItem(WishlistItemInterface $item): void;
+
+    public function hasVariant(ProductVariantInterface $variant): bool;
+
+    public function getItemByVariant(ProductVariantInterface $variant): ?WishlistItemInterface;
+
+    public function getCreatedAt(): \DateTimeImmutable;
+
+    public function getUpdatedAt(): ?\DateTimeImmutable;
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): void;
 }

@@ -10,8 +10,6 @@ use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Resource\Doctrine\Persistence\RepositoryInterface;
 
 /**
- * Contract agreed with the entity side (feat/back-entity).
- *
  * @extends RepositoryInterface<WishlistInterface>
  */
 interface WishlistRepositoryInterface extends RepositoryInterface

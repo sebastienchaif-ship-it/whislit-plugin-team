@@ -7,7 +7,6 @@ namespace PsSummit\SyliusWishlistPlugin\Entity;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Resource\Model\ResourceInterface;
 
-/** Contract agreed with the entity side (feat/back-entity). */
 interface WishlistItemInterface extends ResourceInterface
 {
     public function getWishlist(): ?WishlistInterface;
@@ -18,5 +17,5 @@ interface WishlistItemInterface extends ResourceInterface
 
     public function setVariant(?ProductVariantInterface $variant): void;
 
-    public function getCreatedAt(): ?\DateTimeImmutable;
+    public function getCreatedAt(): \DateTimeImmutable;
 }
