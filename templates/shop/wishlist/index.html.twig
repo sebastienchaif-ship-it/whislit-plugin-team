@@ -8,10 +8,13 @@
 {% block title %}{{ 'ps_summit_wishlist.ui.my_wishlists'|trans }} | {{ parent() }}{% endblock %}
 
 {% block content %}
+{# Also usable as the createAction template: on a validation error, ResourceController renders it with `form` (invalid) and no `wishlists`. #}
+{% set wishlists = wishlists is defined ? wishlists : ps_summit_wishlists() %}
+{% set name_errors = form is defined and form.name is defined ? form.name.vars.errors : [] %}
 <div class="container my-5" {{ sylius_test_html_attribute('wishlists-page') }}>
     <h1 class="h2 mb-4">{{ 'ps_summit_wishlist.ui.my_wishlists'|trans }}</h1>
 
-    {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_create_form.html.twig' with {form_id: 'ps-summit-wishlist-create'} %}
+    {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_create_form.html.twig' with {form_id: 'ps-summit-wishlist-create', name_errors: name_errors} %}
 
     {% if wishlists is empty %}
         <div class="alert alert-light border text-center py-5" {{ sylius_test_html_attribute('wishlists-empty') }}>
