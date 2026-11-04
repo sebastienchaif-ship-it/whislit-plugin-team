@@ -1,0 +1,21 @@
+{# Product page: the wishlist form lives outside the add to cart form (no nested forms).
+   The heart next to "Add to cart" submits it with form= and formaction= (selected variant). #}
+{% set product = hookable_metadata.context.product %}
+{% set variant = product|sylius_resolve_variant %}
+{% set cart_form_shown = not (product.enabledVariants.empty() or product.simple and not sylius_inventory_is_available(product.enabledVariants.first)) %}
+
+{% if variant is not null %}
+    <form method="post" id="ps-summit-wishlist-pdp-form"
+          action="{{ path('ps_summit_wishlist_add', {'variantId': variant.id}) }}"
+          class="ps-summit-wishlist-add mb-3">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_add') }}">
+        {% if not cart_form_shown %}
+            {# Out of stock: no add to cart form, so the heart is shown here. #}
+            <button type="submit" class="btn btn-outline-danger"
+                    title="{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}"
+                    aria-label="{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}">
+                {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' %}
+            </button>
+        {% endif %}
+    </form>
+{% endif %}
