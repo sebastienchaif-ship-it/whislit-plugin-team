@@ -1,3 +1,15 @@
 # Plugin configuration, imported by the host application:
 # imports:
 #     - { resource: "@PsSummitSyliusWishlistPlugin/config/config.yaml" }
+
+sylius_resource:
+    resources:
+        ps_summit_wishlist.wishlist:
+            classes:
+                model: PsSummit\SyliusWishlistPlugin\Entity\Wishlist
+                interface: PsSummit\SyliusWishlistPlugin\Entity\WishlistInterface
+                repository: PsSummit\SyliusWishlistPlugin\Repository\WishlistRepository
+        ps_summit_wishlist.wishlist_item:
+            classes:
+                model: PsSummit\SyliusWishlistPlugin\Entity\WishlistItem
+                interface: PsSummit\SyliusWishlistPlugin\Entity\WishlistItemInterface
