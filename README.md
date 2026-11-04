@@ -2,7 +2,7 @@
 
 Wishlist plugin for Sylius 2, built by our team at the PS Summit Hackathon 2026 (Lyon, 4 November 2026).
 
-Status: empty base, no feature yet. Stage 1 (basic wishlist) comes next.
+Status: Stage 1 (basic wishlist) done; Stage 2 (multiple named wishlists) in progress.
 
 ## Requirements
 
@@ -52,9 +52,10 @@ Status: empty base, no feature yet. Stage 1 (basic wishlist) comes next.
 | `ps_summit_wishlist.wishlist` | `ps_summit_wishlist.repository.wishlist`, `ps_summit_wishlist.factory.wishlist` | `ps_summit_wishlist` |
 | `ps_summit_wishlist.wishlist_item` | `ps_summit_wishlist.repository.wishlist_item`, `ps_summit_wishlist.factory.wishlist_item` | `ps_summit_wishlist_item` |
 
-- A `Wishlist` belongs to a channel and either to a customer (`customer`) or to a guest (`token`, stored in a cookie). Unique on `(customer, channel)` and on `token`.
-- A `WishlistItem` points to a `ProductVariant`. Unique on `(wishlist, variant)`, and `Wishlist::addItem()` silently skips a variant that is already there.
-- Lookups: `WishlistRepositoryInterface::findOneByCustomerAndChannel()` and `findOneByTokenAndChannel()` (items and variants are fetch-joined).
+- A `Wishlist` has a `name` and belongs to a channel and either to a customer (`customer`) or to a guest (`token`, stored in a cookie). A customer or a guest can have several wishlists: the guest token is shared by all of them (plain index, not unique).
+- `name` is required: `NotBlank` (whitespace-only is rejected, the value is stored trimmed) and at most 255 characters, validation group `sylius`, messages in the `validators` domain (en, fr, it). New wishlists default to `WishlistInterface::DEFAULT_NAME` ("My Favorites").
+- A `WishlistItem` points to a `ProductVariant`. Unique on `(wishlist, variant)`, and `Wishlist::addItem()` silently skips a variant that is already there. The same variant can be in several wishlists.
+- Lookups (oldest wishlist first, items and variants fetch-joined): `WishlistRepositoryInterface::findAllByCustomerAndChannel()` and `findAllByTokenAndChannel()`; `findOneByCustomerAndChannel()` and `findOneByTokenAndChannel()` return the oldest one (the default wishlist).
 - Deleting a customer, channel or variant cascades to the wishlist rows.
 
 ## Upgrade
@@ -66,6 +67,29 @@ composer update ps-summit/sylius-wishlist-plugin
 bin/console doctrine:migrations:migrate -n
 bin/console cache:clear
 ```
+
+### Stage 1 → Stage 2 (multiple named wishlists)
+
+1. Update the plugin and run the migrations:
+
+   ```bash
+   composer update ps-summit/sylius-wishlist-plugin
+   bin/console doctrine:migrations:migrate -n
+   bin/console cache:clear
+   ```
+
+2. `Version20261104160000` changes the `ps_summit_wishlist` table in place (it is not recreated, no data is lost):
+   - adds the `name` column; every existing wishlist is named "My Favorites", with its products unchanged;
+   - drops the unique indexes `ps_summit_wishlist_customer_channel_unique` and `ps_summit_wishlist_token_unique` (a shopper now has several wishlists) and adds a plain index on `token`;
+   - keeps the unique `(wishlist, variant)` on `ps_summit_wishlist_item`.
+
+3. Check that the Stage 1 products are now in "My Favorites":
+
+   ```bash
+   bin/console dbal:run-sql "SELECT w.id, w.name, COUNT(i.id) AS items FROM ps_summit_wishlist w LEFT JOIN ps_summit_wishlist_item i ON i.wishlist_id = w.id GROUP BY w.id"
+   ```
+
+Going back (`doctrine:migrations:migrate prev`) restores the unique indexes, so it fails while a customer or a guest has more than one wishlist in a channel.
 
 ## License
 

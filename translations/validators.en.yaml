@@ -1,0 +1,5 @@
+ps_summit_wishlist:
+    wishlist:
+        name:
+            not_blank: "Please enter a name for the wishlist."
+            max_length: "The wishlist name must not be longer than {{ limit }} characters."
