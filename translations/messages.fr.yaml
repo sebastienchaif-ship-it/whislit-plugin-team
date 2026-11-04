@@ -13,3 +13,21 @@ ps_summit_wishlist:
         add_selected_to_cart: Ajouter la sélection au panier
         unavailable: Indisponible
         added_to_cart: Les produits sélectionnés ont été ajoutés à votre panier.
+        my_wishlists: Mes listes d'envies
+        no_wishlist: Vous n'avez pas encore de liste d'envies.
+        new_wishlist: Nouvelle liste
+        new_wishlist_placeholder: 'ex. Anniversaire, Noël'
+        create: Créer
+        name_required: Le nom de la liste est obligatoire (des espaces seuls ne suffisent pas).
+        wishlist_name: Nom de la liste
+        items_count: '{0} Aucun produit|{1} 1 produit|]1,Inf[ %count% produits'
+        rename: Renommer
+        save: Enregistrer
+        delete_wishlist: Supprimer cette liste
+        delete_confirm: 'Supprimer « %name% » ? Ses produits restent dans le catalogue et dans vos autres listes.'
+        delete_confirm_button: Oui, supprimer
+        move_to: Déplacer vers...
+        move: Déplacer
+        choose_wishlist: Choisir une liste
+        add_to_named_wishlist: 'Ajouter à %name%'
+        see_my_wishlists: Voir mes listes

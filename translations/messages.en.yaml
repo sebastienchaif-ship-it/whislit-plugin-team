@@ -13,3 +13,21 @@ ps_summit_wishlist:
         add_selected_to_cart: Add Selected to Cart
         unavailable: Unavailable
         added_to_cart: The selected products were added to your cart.
+        my_wishlists: My wishlists
+        no_wishlist: You have no wishlist yet.
+        new_wishlist: New wishlist
+        new_wishlist_placeholder: 'e.g. Birthday, Christmas'
+        create: Create
+        name_required: The wishlist name is required (spaces only are not allowed).
+        wishlist_name: Wishlist name
+        items_count: '{0} No product|{1} 1 product|]1,Inf[ %count% products'
+        rename: Rename
+        save: Save
+        delete_wishlist: Delete this list
+        delete_confirm: 'Delete "%name%"? Its products stay in the catalogue and in your other lists.'
+        delete_confirm_button: Yes, delete
+        move_to: Move to...
+        move: Move
+        choose_wishlist: Choose a wishlist
+        add_to_named_wishlist: 'Add to %name%'
+        see_my_wishlists: See my wishlists
