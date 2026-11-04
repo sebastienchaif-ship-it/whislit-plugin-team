@@ -1,39 +1,38 @@
 {#
-    DEV PLACEHOLDER (back end) - the real "My wishlists" page is built on feat/stage2-front; on merge, keep the front-end version.
-    Variables: wishlists (the visitor's wishlists, oldest first; each: id, name, items).
+    "My wishlists" page (Stage 2). Variables: wishlists (the visitor's wishlists, oldest first; the first one is the default list).
+    Create: plain "name" + "_csrf_token" (WishlistType, token id ps_summit_wishlist_create).
+    The name must not be empty nor whitespace only: checked in the browser (required + pattern) and by the back end.
 #}
 {% extends '@SyliusShop/shared/layout/base.html.twig' %}
 
-{% block title %}{{ 'ps_summit_wishlist.ui.wishlist'|trans }} | {{ parent() }}{% endblock %}
+{% block title %}{{ 'ps_summit_wishlist.ui.my_wishlists'|trans }} | {{ parent() }}{% endblock %}
 
 {% block content %}
 <div class="container my-5" {{ sylius_test_html_attribute('wishlists-page') }}>
-    <h1 class="h2 mb-4">My wishlists</h1>
+    <h1 class="h2 mb-4">{{ 'ps_summit_wishlist.ui.my_wishlists'|trans }}</h1>
 
-    <form method="post" action="{{ path('ps_summit_wishlist_create') }}" class="d-flex gap-2 mb-4" {{ sylius_test_html_attribute('wishlist-create') }}>
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_create') }}">
-        <input type="text" name="name" class="form-control" placeholder="New wishlist name">
-        <button type="submit" class="btn btn-primary">Create</button>
-    </form>
+    {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_create_form.html.twig' with {form_id: 'ps-summit-wishlist-create'} %}
 
-    <ul class="list-group">
-        {% for list in wishlists %}
-            <li class="list-group-item d-flex align-items-center gap-2" {{ sylius_test_html_attribute('wishlist-list', list.id) }}>
-                <a href="{{ path('ps_summit_wishlist_show', {id: list.id}) }}" class="me-auto">{{ list.name }}</a>
-                <span class="badge text-bg-secondary">{{ list.items|length }}</span>
-                <form method="post" action="{{ path('ps_summit_wishlist_rename', {id: list.id}) }}" class="d-flex gap-1">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_rename') }}">
-                    <input type="text" name="name" value="{{ list.name }}" class="form-control form-control-sm">
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">Rename</button>
-                </form>
-                <form method="post" action="{{ path('ps_summit_wishlist_delete', {id: list.id}) }}" onsubmit="return confirm('Delete this wishlist?');">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token(list.id) }}">
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                </form>
-            </li>
-        {% else %}
-            <li class="list-group-item">No wishlist yet.</li>
-        {% endfor %}
-    </ul>
+    {% if wishlists is empty %}
+        <div class="alert alert-light border text-center py-5" {{ sylius_test_html_attribute('wishlists-empty') }}>
+            <p class="mb-3">{{ 'ps_summit_wishlist.ui.no_wishlist'|trans }}</p>
+            <a href="{{ path('sylius_shop_homepage') }}" class="btn btn-primary">{{ 'ps_summit_wishlist.ui.continue_shopping'|trans }}</a>
+        </div>
+    {% else %}
+        <div class="list-group">
+            {% for list in wishlists %}
+                {% set items_count = list.items|length %}
+                <a href="{{ path('ps_summit_wishlist_show', {'id': list.id}) }}"
+                   class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3"
+                   {{ sylius_test_html_attribute('wishlist-list', list.name) }}>
+                    <span class="text-danger">{% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' with {filled: items_count > 0} %}</span>
+                    <span class="me-auto fw-semibold">{{ list.name }}</span>
+                    <span class="badge rounded-pill bg-secondary" {{ sylius_test_html_attribute('wishlist-list-count', items_count) }}>
+                        {{ 'ps_summit_wishlist.ui.items_count'|trans({'%count%': items_count}) }}
+                    </span>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

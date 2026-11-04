@@ -1,0 +1,21 @@
+{# Create a wishlist. form_id: unique id prefix on the page. Empty or whitespace-only names are blocked by the browser
+   (required + pattern, message from title) and must also be rejected by the back end. Redirects back to the referer. #}
+<form method="post" action="{{ path('ps_summit_wishlist_create') }}" class="mb-4"
+      {{ sylius_test_html_attribute('wishlist-create') }}>
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_create') }}">
+    <label for="{{ form_id }}-name" class="form-label fw-semibold">{{ 'ps_summit_wishlist.ui.new_wishlist'|trans }}</label>
+    <div class="d-flex gap-2 align-items-start">
+        <div class="flex-grow-1">
+            <input type="text" id="{{ form_id }}-name" name="name" class="form-control" maxlength="255"
+                   required pattern=".*\S.*" autocomplete="off"
+                   placeholder="{{ 'ps_summit_wishlist.ui.new_wishlist_placeholder'|trans }}"
+                   title="{{ 'ps_summit_wishlist.ui.name_required'|trans }}"
+                   aria-describedby="{{ form_id }}-help"
+                   {{ sylius_test_html_attribute('wishlist-create-name') }}>
+            <div id="{{ form_id }}-help" class="form-text">{{ 'ps_summit_wishlist.ui.name_required'|trans }}</div>
+        </div>
+        <button type="submit" class="btn btn-primary" {{ sylius_test_html_attribute('wishlist-create-submit') }}>
+            {{ 'ps_summit_wishlist.ui.create'|trans }}
+        </button>
+    </div>
+</form>
