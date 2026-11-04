@@ -1,0 +1,10 @@
+{# Header: heart link to the wishlist page, on the left of the cart. #}
+<div class="col-auto">
+    <a href="{{ path('ps_summit_wishlist_show') }}"
+       class="btn btn-icon btn-transparent px-0 text-danger"
+       title="{{ 'ps_summit_wishlist.ui.wishlist'|trans }}"
+       aria-label="{{ 'ps_summit_wishlist.ui.wishlist'|trans }}"
+       {{ sylius_test_html_attribute('wishlist-header-link') }}>
+        {{ ux_icon('tabler:heart') }}
+    </a>
+</div>

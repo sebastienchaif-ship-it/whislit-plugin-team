@@ -1,0 +1,26 @@
+sylius_twig_hooks:
+    hooks:
+        # Header: heart link to the wishlist page, between the account links and the cart
+        'sylius_shop.base.header.content':
+            ps_summit_wishlist_link:
+                template: '@PsSummitSyliusWishlistPlugin/shop/wishlist/_header_link.html.twig'
+                priority: 150
+
+        # Product page (PDP): hidden wishlist form, outside the add to cart form
+        'sylius_shop.product.show.content.info.summary':
+            ps_summit_wishlist_form:
+                template: '@PsSummitSyliusWishlistPlugin/shop/wishlist/_pdp_form.html.twig'
+                priority: 50
+
+        # Product page (PDP): heart on the left of "Add to cart" (replaces the native submit entry,
+        # which is included again inside the plugin template)
+        'sylius_shop.product.show.content.info.summary.add_to_cart':
+            submit:
+                template: '@PsSummitSyliusWishlistPlugin/shop/wishlist/_pdp_submit.html.twig'
+                priority: 0
+
+        # Product cards (PLP and product lists): heart over the image
+        'sylius_shop.shared.product.card':
+            ps_summit_wishlist_add:
+                template: '@PsSummitSyliusWishlistPlugin/shop/wishlist/_card_button.html.twig'
+                priority: 200

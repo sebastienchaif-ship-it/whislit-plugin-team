@@ -1,0 +1,99 @@
+{% extends '@SyliusShop/shared/layout/base.html.twig' %}
+
+{% import '@SyliusShop/shared/macro/money.html.twig' as money %}
+
+{% block title %}{{ 'ps_summit_wishlist.ui.wishlist'|trans }} | {{ parent() }}{% endblock %}
+
+{% block content %}
+<div class="container my-5" {{ sylius_test_html_attribute('wishlist-page') }}>
+    <h1 class="h2 mb-4">{{ 'ps_summit_wishlist.ui.wishlist'|trans }}</h1>
+
+    {% if wishlist.empty %}
+        <div class="alert alert-light border text-center py-5" {{ sylius_test_html_attribute('wishlist-empty') }}>
+            <p class="mb-3">{{ 'ps_summit_wishlist.ui.empty'|trans }}</p>
+            <a href="{{ path('sylius_shop_homepage') }}" class="btn btn-primary">{{ 'ps_summit_wishlist.ui.continue_shopping'|trans }}</a>
+        </div>
+    {% else %}
+        {# Bulk form: the row checkboxes (items[]) point to it with form=. Row buttons have their own forms. #}
+        <form method="post" id="ps-summit-wishlist-bulk" action="{{ path('ps_summit_wishlist_add_to_cart') }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_add_to_cart') }}">
+        </form>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col" class="text-center" style="width: 3rem;"><span class="visually-hidden">{{ 'ps_summit_wishlist.ui.add_selected_to_cart'|trans }}</span></th>
+                        <th scope="col" colspan="2">{{ 'sylius.ui.product'|trans }}</th>
+                        <th scope="col" class="text-end">{{ 'sylius.ui.price'|trans }}</th>
+                        <th scope="col"><span class="visually-hidden">{{ 'sylius.ui.actions'|trans }}</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in wishlist.items %}
+                    <tr {{ sylius_test_html_attribute('wishlist-item', item.variant.code) }}>
+                        <td class="text-center">
+                            <input type="checkbox" class="form-check-input" name="items[]" value="{{ item.id }}"
+                                   form="ps-summit-wishlist-bulk"
+                                   aria-label="{{ 'ps_summit_wishlist.ui.add_selected_to_cart'|trans }}: {{ item.name }}"
+                                   {% if not item.available %}disabled{% endif %}>
+                        </td>
+                        <td style="width: 88px;">
+                            <a href="{{ path('sylius_shop_product_show', {'slug': item.product.slug}) }}">
+                                {% if item.image %}
+                                    <img src="{{ item.image|imagine_filter('sylius_shop_product_thumbnail') }}" alt="{{ item.name }}"
+                                         class="rounded-3 bg-light object-fit-cover" width="72" height="96">
+                                {% else %}
+                                    <div class="rounded-3 bg-light" style="width: 72px; height: 96px;"></div>
+                                {% endif %}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ path('sylius_shop_product_show', {'slug': item.product.slug}) }}" class="link-reset fw-semibold">{{ item.name }}</a>
+                            {% if item.variantName %}<div class="small text-body-tertiary">{{ item.variantName }}</div>{% endif %}
+                            {% if not item.available %}
+                                <div><span class="badge text-bg-secondary mt-1" {{ sylius_test_html_attribute('wishlist-item-unavailable') }}>{{ 'ps_summit_wishlist.ui.unavailable'|trans }}</span></div>
+                            {% endif %}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            {% if item.price is not null %}
+                                {% if item.originalPrice is not null and item.originalPrice > item.price %}
+                                    <del class="text-body-tertiary small me-1">{{ money.convertAndFormat(item.originalPrice) }}</del>
+                                {% endif %}
+                                <span class="fw-semibold">{{ money.convertAndFormat(item.price) }}</span>
+                            {% else %}
+                                <span class="text-body-tertiary">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <form method="post" action="{{ path('ps_summit_wishlist_add_to_cart') }}" class="d-inline">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_add_to_cart') }}">
+                                <input type="hidden" name="items[]" value="{{ item.id }}">
+                                <button type="submit" class="btn btn-sm btn-primary" {% if not item.available %}disabled{% endif %}
+                                        {{ sylius_test_html_attribute('wishlist-item-add-to-cart') }}>
+                                    {{ 'ps_summit_wishlist.ui.add_to_cart'|trans }}
+                                </button>
+                            </form>
+                            <form method="post" action="{{ path('ps_summit_wishlist_remove', {'itemId': item.id}) }}" class="d-inline">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_remove') }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        {{ sylius_test_html_attribute('wishlist-item-remove') }}>
+                                    {{ 'ps_summit_wishlist.ui.remove'|trans }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ path('sylius_shop_homepage') }}" class="btn btn-link px-0">{{ 'ps_summit_wishlist.ui.continue_shopping'|trans }}</a>
+            <button type="submit" form="ps-summit-wishlist-bulk" class="btn btn-primary" {{ sylius_test_html_attribute('wishlist-add-selected') }}>
+                {{ 'ps_summit_wishlist.ui.add_selected_to_cart'|trans }}
+            </button>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

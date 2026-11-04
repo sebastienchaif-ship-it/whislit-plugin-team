@@ -4,3 +4,27 @@
 #     prefix: /{_locale}
 #     requirements:
 #         _locale: ^[A-Za-z]{2,4}(_([A-Za-z]{4}|[0-9]{3}))?(_([A-Za-z]{2}|[0-9]{3}))?$
+
+ps_summit_wishlist_show:
+    path: /wishlist
+    methods: [GET]
+    controller: PsSummit\SyliusWishlistPlugin\Controller\Shop\ShowWishlistAction
+
+ps_summit_wishlist_add:
+    path: /wishlist/add/{variantId}
+    methods: [POST]
+    controller: PsSummit\SyliusWishlistPlugin\Controller\Shop\AddToWishlistAction
+    requirements:
+        variantId: \d+
+
+ps_summit_wishlist_remove:
+    path: /wishlist/remove/{itemId}
+    methods: [POST]
+    controller: PsSummit\SyliusWishlistPlugin\Controller\Shop\RemoveFromWishlistAction
+    requirements:
+        itemId: \d+
+
+ps_summit_wishlist_add_to_cart:
+    path: /wishlist/add-to-cart
+    methods: [POST]
+    controller: PsSummit\SyliusWishlistPlugin\Controller\Shop\AddWishlistItemsToCartAction

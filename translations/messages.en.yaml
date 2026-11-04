@@ -1,0 +1,14 @@
+ps_summit_wishlist:
+    ui:
+        add_to_wishlist: Add to Wishlist
+        wishlist: Wishlist
+        added: The product was added to your wishlist.
+        already_in_wishlist: This product is already in your wishlist.
+        removed: The product was removed from your wishlist.
+        empty: Your wishlist is empty.
+        continue_shopping: Continue shopping
+        remove: Remove
+        add_to_cart: Add to Cart
+        add_selected_to_cart: Add Selected to Cart
+        unavailable: Unavailable
+        added_to_cart: The selected products were added to your cart.
