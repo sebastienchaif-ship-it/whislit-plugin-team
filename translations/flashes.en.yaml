@@ -2,6 +2,7 @@ ps_summit_wishlist:
     added_to_wishlist: The product has been added to your wishlist.
     already_in_wishlist: This product is already in your wishlist.
     removed_from_wishlist: The product has been removed from your wishlist.
+    invalid_csrf_token: Your session has expired, please try again.
     no_item_selected: Select at least one product to add to your cart.
     added_to_cart: '{1} 1 product has been added to your cart.|]1,Inf[ %count% products have been added to your cart.'
     not_added_to_cart: '{1} 1 product is not available and was not added to your cart.|]1,Inf[ %count% products are not available and were not added to your cart.'
