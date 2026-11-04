@@ -3,6 +3,7 @@
 #     - { resource: "@PsSummitSyliusWishlistPlugin/config/config.yaml" }
 imports:
     - { resource: 'twig_hooks.yaml' }
+    - { resource: 'grids/admin/wishlist.yaml' }
 
 sylius_resource:
     resources:

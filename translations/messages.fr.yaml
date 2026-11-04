@@ -12,3 +12,9 @@ ps_summit_wishlist:
         add_selected_to_cart: Ajouter la sélection au panier
         unavailable: Indisponible
         added_to_cart: Les produits sélectionnés ont été ajoutés à votre panier.
+        # Admin
+        wishlists: Listes d'envies
+        owner: Propriétaire
+        guest: Invité
+        products: Produits
+        customer_wishlist: Liste d'envies client

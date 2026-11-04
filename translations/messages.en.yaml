@@ -12,3 +12,9 @@ ps_summit_wishlist:
         add_selected_to_cart: Add Selected to Cart
         unavailable: Unavailable
         added_to_cart: The selected products were added to your cart.
+        # Admin
+        wishlists: Wishlists
+        owner: Owner
+        guest: Guest
+        products: Products
+        customer_wishlist: Customer wishlist

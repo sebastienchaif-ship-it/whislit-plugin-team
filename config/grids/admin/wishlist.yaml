@@ -1,0 +1,69 @@
+# Read-only admin listing of all wishlists (customers and guests), route ps_summit_wishlist_admin_wishlist_index.
+sylius_grid:
+    grids:
+        ps_summit_wishlist_admin_wishlist:
+            driver:
+                name: doctrine/orm
+                options:
+                    class: "%ps_summit_wishlist.model.wishlist.class%"
+            sorting:
+                createdAt: desc
+            fields:
+                name:
+                    type: string
+                    label: sylius.ui.name
+                    sortable: ~
+                owner:
+                    type: twig
+                    label: ps_summit_wishlist.ui.owner
+                    path: .
+                    options:
+                        template: "@PsSummitSyliusWishlistPlugin/admin/wishlist/grid/field/owner.html.twig"
+                channel:
+                    type: twig
+                    label: sylius.ui.channel
+                    options:
+                        template: "@SyliusAdmin/shared/grid/field/channel.html.twig"
+                items:
+                    type: twig
+                    label: ps_summit_wishlist.ui.products
+                    options:
+                        template: "@PsSummitSyliusWishlistPlugin/admin/wishlist/grid/field/items.html.twig"
+                        vars:
+                            th_class: "w-1 text-center"
+                            td_class: "text-center"
+                createdAt:
+                    type: twig
+                    label: sylius.ui.created_at
+                    sortable: ~
+                    options:
+                        template: "@SyliusAdmin/shared/grid/field/date.html.twig"
+                        vars:
+                            th_class: "text-center"
+                updatedAt:
+                    type: twig
+                    label: sylius.ui.updated_at
+                    sortable: ~
+                    options:
+                        template: "@SyliusAdmin/shared/grid/field/date.html.twig"
+                        vars:
+                            th_class: "text-center"
+            filters:
+                name:
+                    type: string
+                    label: sylius.ui.name
+                customer:
+                    type: string
+                    label: sylius.ui.customer
+                    options:
+                        fields: [customer.email, customer.firstName, customer.lastName]
+                guest:
+                    type: exists
+                    label: ps_summit_wishlist.ui.customer_wishlist
+                    options:
+                        field: customer
+                channel:
+                    type: entity
+                    label: sylius.ui.channel
+                    form_options:
+                        class: "%sylius.model.channel.class%"
