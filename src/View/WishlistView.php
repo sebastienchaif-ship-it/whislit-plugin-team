@@ -10,6 +10,8 @@ final class WishlistView
     /** @param list<WishlistItemView> $items */
     public function __construct(
         public readonly array $items,
+        public readonly ?int $id = null,
+        public readonly ?string $name = null,
     ) {
     }
 

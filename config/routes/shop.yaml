@@ -7,19 +7,90 @@
 #
 # All routes use the Sylius ResourceBundle controllers of the plugin resources:
 # ps_summit_wishlist.controller.wishlist (WishlistController) and ps_summit_wishlist.controller.wishlist_item.
-# "ps_summit_wishlist.context.wishlist" resolves the current shopper's wishlist (customer or guest cookie).
+# Wishlists are always resolved through "ps_summit_wishlist.context.wishlist", which only returns the
+# current visitor's own lists (customer or guest cookie): any other id gives a 404.
 
-ps_summit_wishlist_show:
-    path: /wishlist
+# ---------------------------------------------------------------- wishlists (Stage 2)
+
+ps_summit_wishlist_index:
+    path: /wishlists
     methods: [GET]
     defaults:
+        _controller: ps_summit_wishlist.controller.wishlist::indexAction
+        _sylius:
+            section: shop
+            template: '@PsSummitSyliusWishlistPlugin/shop/wishlist/index.html.twig'
+            repository:
+                method: ['expr:service("ps_summit_wishlist.context.wishlist")', getWishlists]
+
+ps_summit_wishlist_create:
+    path: /wishlists
+    methods: [POST]
+    defaults:
+        _controller: ps_summit_wishlist.controller.wishlist::createAction
+        _sylius:
+            section: shop
+            factory:
+                method: ['expr:service("ps_summit_wishlist.context.wishlist")', createWishlist]
+            form:
+                type: PsSummit\SyliusWishlistPlugin\Form\Type\WishlistType
+                options: { csrf_token_id: ps_summit_wishlist_create }
+            flash: ps_summit_wishlist.wishlist_created
+            redirect: referer
+
+# Default list without id (Stage 1 URL /wishlist), a given list with id (/wishlist/{id}).
+ps_summit_wishlist_show:
+    path: /wishlist/{id}
+    methods: [GET]
+    requirements:
+        id: \d+
+    defaults:
+        id: ~
         _controller: ps_summit_wishlist.controller.wishlist::showAction
         _sylius:
             section: shop
             template: '@PsSummitSyliusWishlistPlugin/shop/wishlist/show.html.twig'
             repository:
-                method: ['expr:service("ps_summit_wishlist.context.wishlist")', getWishlistForDisplay]
+                method: ['expr:service("ps_summit_wishlist.context.wishlist")', getWishlistByIdForDisplay]
+                arguments: [$id]
 
+ps_summit_wishlist_rename:
+    path: /wishlists/{id}/rename
+    methods: [POST]
+    requirements:
+        id: \d+
+    defaults:
+        _controller: ps_summit_wishlist.controller.wishlist::updateAction
+        _sylius:
+            section: shop
+            repository:
+                method: ['expr:service("ps_summit_wishlist.context.wishlist")', findWishlistById]
+                arguments: [$id]
+            form:
+                type: PsSummit\SyliusWishlistPlugin\Form\Type\WishlistType
+                options: { csrf_token_id: ps_summit_wishlist_rename }
+            flash: ps_summit_wishlist.wishlist_renamed
+            redirect: referer
+
+# Native Sylius deleteAction: CSRF token id = wishlist id (csrf_token(wishlist.id)).
+ps_summit_wishlist_delete:
+    path: /wishlists/{id}/delete
+    methods: [POST]
+    requirements:
+        id: \d+
+    defaults:
+        _controller: ps_summit_wishlist.controller.wishlist::deleteAction
+        _sylius:
+            section: shop
+            repository:
+                method: ['expr:service("ps_summit_wishlist.context.wishlist")', findWishlistById]
+                arguments: [$id]
+            flash: ps_summit_wishlist.wishlist_deleted
+            redirect: ps_summit_wishlist_index
+
+# ---------------------------------------------------------------- items
+
+# Optional "wishlistId" (POST): destination list; missing = default list (Stage 1 buttons).
 ps_summit_wishlist_add:
     path: /wishlist/add/{variantId}
     methods: [POST]
@@ -31,7 +102,7 @@ ps_summit_wishlist_add:
             section: shop
             factory:
                 method: createForCurrentWishlistAndVariant
-                arguments: [$variantId]
+                arguments: [$variantId, $wishlistId]
             flash: ps_summit_wishlist.added_to_wishlist
             redirect: referer
 
@@ -50,6 +121,21 @@ ps_summit_wishlist_remove:
             flash: ps_summit_wishlist.removed_from_wishlist
             redirect: referer
 
+# "targetWishlistId" (POST): one of the visitor's lists.
+ps_summit_wishlist_move:
+    path: /wishlist/move/{itemId}
+    methods: [POST]
+    requirements:
+        itemId: \d+
+    defaults:
+        _controller: ps_summit_wishlist.controller.wishlist::moveAction
+        _sylius:
+            section: shop
+            repository:
+                method: ['expr:service("ps_summit_wishlist.context.wishlist")', findWishlistById]
+                arguments: [$targetWishlistId]
+
+# Optional "wishlistId" (POST): list the items come from; missing = default list (Stage 1).
 ps_summit_wishlist_add_to_cart:
     path: /wishlist/add-to-cart
     methods: [POST]
@@ -58,5 +144,5 @@ ps_summit_wishlist_add_to_cart:
         _sylius:
             section: shop
             repository:
-                method: ['expr:service("ps_summit_wishlist.context.wishlist")', getWishlistForDisplay]
-            redirect: ps_summit_wishlist_show
+                method: ['expr:service("ps_summit_wishlist.context.wishlist")', getWishlistByIdForDisplay]
+                arguments: [$wishlistId]

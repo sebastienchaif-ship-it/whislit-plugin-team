@@ -1,0 +1,39 @@
+{#
+    DEV PLACEHOLDER (back end) - the real "My wishlists" page is built on feat/stage2-front; on merge, keep the front-end version.
+    Variables: wishlists (the visitor's wishlists, oldest first; each: id, name, items).
+#}
+{% extends '@SyliusShop/shared/layout/base.html.twig' %}
+
+{% block title %}{{ 'ps_summit_wishlist.ui.wishlist'|trans }} | {{ parent() }}{% endblock %}
+
+{% block content %}
+<div class="container my-5" {{ sylius_test_html_attribute('wishlists-page') }}>
+    <h1 class="h2 mb-4">My wishlists</h1>
+
+    <form method="post" action="{{ path('ps_summit_wishlist_create') }}" class="d-flex gap-2 mb-4" {{ sylius_test_html_attribute('wishlist-create') }}>
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_create') }}">
+        <input type="text" name="name" class="form-control" placeholder="New wishlist name">
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+
+    <ul class="list-group">
+        {% for list in wishlists %}
+            <li class="list-group-item d-flex align-items-center gap-2" {{ sylius_test_html_attribute('wishlist-list', list.id) }}>
+                <a href="{{ path('ps_summit_wishlist_show', {id: list.id}) }}" class="me-auto">{{ list.name }}</a>
+                <span class="badge text-bg-secondary">{{ list.items|length }}</span>
+                <form method="post" action="{{ path('ps_summit_wishlist_rename', {id: list.id}) }}" class="d-flex gap-1">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_rename') }}">
+                    <input type="text" name="name" value="{{ list.name }}" class="form-control form-control-sm">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Rename</button>
+                </form>
+                <form method="post" action="{{ path('ps_summit_wishlist_delete', {id: list.id}) }}" onsubmit="return confirm('Delete this wishlist?');">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token(list.id) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+            </li>
+        {% else %}
+            <li class="list-group-item">No wishlist yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
