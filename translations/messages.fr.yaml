@@ -31,3 +31,9 @@ ps_summit_wishlist:
         choose_wishlist: Choisir une liste
         add_to_named_wishlist: 'Ajouter à %name%'
         see_my_wishlists: Voir mes listes
+        # Admin
+        wishlists: Listes d'envies
+        owner: Propriétaire
+        guest: Invité
+        products: Produits
+        customer_wishlist: Liste d'envies client

@@ -1,0 +1,8 @@
+ps_summit_wishlist:
+    ui:
+        # Admin
+        wishlists: Wishlist
+        owner: Proprietario
+        guest: Ospite
+        products: Prodotti
+        customer_wishlist: Wishlist di un cliente
