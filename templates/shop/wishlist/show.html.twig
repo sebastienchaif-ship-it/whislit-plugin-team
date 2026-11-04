@@ -1,0 +1,49 @@
+{#
+    DEV PLACEHOLDER (back end) - the real page is built on feat/front-wishlist; on merge, keep the front-end version.
+    Variables: wishlist.items (id, variant, product, name, variantName, image, price, originalPrice, available), wishlist.empty
+#}
+{% extends '@SyliusShop/shared/layout/base.html.twig' %}
+{% import '@SyliusShop/shared/macro/money.html.twig' as money %}
+
+{% block title %}Wishlist | {{ parent() }}{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <h1>Wishlist</h1>
+
+        {% if wishlist.empty %}
+            <p>Your wishlist is empty.</p>
+            <a href="{{ path('sylius_shop_homepage') }}">Continue shopping</a>
+        {% else %}
+            <form id="ps-wishlist-cart" method="post" action="{{ path('ps_summit_wishlist_add_to_cart') }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_add_to_cart') }}">
+                <button type="submit" class="btn btn-primary mb-3">Add Selected to Cart</button>
+            </form>
+
+            <table class="table">
+                {% for item in wishlist.items %}
+                    <tr>
+                        <td><input type="checkbox" name="items[]" value="{{ item.id }}" form="ps-wishlist-cart" {{ item.available ? '' : 'disabled' }}></td>
+                        <td>{% if item.image %}<img src="{{ item.image|imagine_filter('sylius_shop_product_thumbnail') }}" alt="" width="64">{% endif %}</td>
+                        <td>{{ item.name }}{% if item.variantName %} - {{ item.variantName }}{% endif %}</td>
+                        <td>{{ item.price is not null ? money.convertAndFormat(item.price) : '-' }}</td>
+                        <td>{{ item.available ? 'Available' : 'Unavailable' }}</td>
+                        <td>
+                            {% if item.available %}
+                                <form method="post" action="{{ path('ps_summit_wishlist_add_to_cart') }}">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_add_to_cart') }}">
+                                    <input type="hidden" name="items[]" value="{{ item.id }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Add to Cart</button>
+                                </form>
+                            {% endif %}
+                            <form method="post" action="{{ path('ps_summit_wishlist_remove', {itemId: item.id}) }}">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_remove') }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}
