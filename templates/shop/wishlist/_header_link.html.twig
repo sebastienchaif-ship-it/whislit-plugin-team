@@ -8,7 +8,7 @@
        {{ sylius_test_html_attribute('wishlist-header-link') }}>
         {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' with {filled: wishlist_count > 0} %}
         {% if wishlist_count > 0 %}
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+            <span class="position-absolute start-100 translate-middle badge rounded-pill bg-secondary" style="top: 5px;"
                   {{ sylius_test_html_attribute('wishlist-count', wishlist_count) }}>
                 {{ wishlist_count }}
             </span>
