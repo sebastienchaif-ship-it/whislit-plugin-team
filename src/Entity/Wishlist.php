@@ -10,11 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'ps_summit_wishlist')]
-#[ORM\UniqueConstraint(name: 'ps_summit_wishlist_customer_channel_unique', columns: ['customer_id', 'channel_id'])]
-#[ORM\UniqueConstraint(name: 'ps_summit_wishlist_token_unique', columns: ['token'])]
+#[ORM\Index(name: 'ps_summit_wishlist_token_idx', columns: ['token'])]
 class Wishlist implements WishlistInterface
 {
     #[ORM\Id]
@@ -22,7 +22,12 @@ class Wishlist implements WishlistInterface
     #[ORM\Column(name: 'id', type: 'integer')]
     private ?int $id = null;
 
-    /** Guest identifier stored in a cookie; null for customer wishlists. */
+    #[ORM\Column(name: 'name', type: 'string', length: 255)]
+    #[Assert\NotBlank(message: 'ps_summit_wishlist.wishlist.name.not_blank', normalizer: 'trim', groups: ['sylius'])]
+    #[Assert\Length(max: 255, maxMessage: 'ps_summit_wishlist.wishlist.name.max_length', groups: ['sylius'])]
+    private ?string $name = self::DEFAULT_NAME;
+
+    /** Guest identifier stored in a cookie, shared by all the guest's wishlists; null for customer wishlists. */
     #[ORM\Column(name: 'token', type: 'string', length: 64, nullable: true)]
     private ?string $token = null;
 
@@ -54,6 +59,16 @@ class Wishlist implements WishlistInterface
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->name = null === $name ? null : trim($name);
     }
 
     public function getToken(): ?string
