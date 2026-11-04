@@ -35,7 +35,7 @@ final class WishlistItemFactory implements WishlistItemFactoryInterface
         return $this->decoratedFactory->createNew();
     }
 
-    public function createForCurrentWishlistAndVariant(int|string $variantId): WishlistItemInterface
+    public function createForCurrentWishlistAndVariant(int|string $variantId, int|string|null $wishlistId = null): WishlistItemInterface
     {
         $variant = $this->productVariantRepository->find($variantId);
         $product = $variant?->getProduct();
@@ -49,11 +49,17 @@ final class WishlistItemFactory implements WishlistItemFactoryInterface
             throw new NotFoundHttpException('Product variant not found.');
         }
 
+        // Another visitor's wishlist (or an unknown id) is never returned: 404.
+        $wishlist = $this->wishlistContext->getOrCreateWishlistById($wishlistId);
+        if (null === $wishlist) {
+            throw new NotFoundHttpException('Wishlist not found.');
+        }
+
         $item = $this->createNew();
         $item->setVariant($variant);
         // Linked to the wishlist, but added to its collection only in WishlistItemListener::onPreCreate
         // (after the duplicate check).
-        $item->setWishlist($this->wishlistContext->getOrCreateWishlist());
+        $item->setWishlist($wishlist);
 
         return $item;
     }

@@ -27,6 +27,10 @@ services:
         alias: PsSummit\SyliusWishlistPlugin\Adder\WishlistItemsToCartAdder
         public: true
 
+    ps_summit_wishlist.mover.wishlist_item:
+        alias: PsSummit\SyliusWishlistPlugin\Mover\WishlistItemMover
+        public: true
+
     PsSummit\SyliusWishlistPlugin\Factory\WishlistItemFactory:
         autowire: true
         autoconfigure: true
@@ -37,5 +41,11 @@ services:
     PsSummit\SyliusWishlistPlugin\Form\Type\WishlistItemType:
         arguments:
             - '%ps_summit_wishlist.model.wishlist_item.class%'
+            - ['sylius']
+        tags: [form.type]
+
+    PsSummit\SyliusWishlistPlugin\Form\Type\WishlistType:
+        arguments:
+            - '%ps_summit_wishlist.model.wishlist.class%'
             - ['sylius']
         tags: [form.type]

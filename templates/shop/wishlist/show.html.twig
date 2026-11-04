@@ -19,6 +19,7 @@
         {# Bulk form: the row checkboxes (items[]) point to it with form=. Row buttons have their own forms. #}
         <form method="post" id="ps-summit-wishlist-bulk" action="{{ path('ps_summit_wishlist_add_to_cart') }}">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_add_to_cart') }}">
+            {% if wishlist.id %}<input type="hidden" name="wishlistId" value="{{ wishlist.id }}">{% endif %}
         </form>
 
         <div class="table-responsive">
@@ -70,6 +71,7 @@
                         <td class="text-end text-nowrap">
                             <form method="post" action="{{ path('ps_summit_wishlist_add_to_cart') }}" class="d-inline">
                                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_add_to_cart') }}">
+            {% if wishlist.id %}<input type="hidden" name="wishlistId" value="{{ wishlist.id }}">{% endif %}
                                 <input type="hidden" name="items[]" value="{{ item.id }}">
                                 <button type="submit" class="btn btn-sm btn-primary" {% if not item.available %}disabled{% endif %}
                                         {{ sylius_test_html_attribute('wishlist-item-add-to-cart') }}>
