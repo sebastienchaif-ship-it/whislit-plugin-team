@@ -16,13 +16,12 @@ use Twig\TwigFunction;
 
 /**
  * Template helpers. ps_summit_wishlist_count / ps_summit_wishlist_has_variant are read-only:
- * they use findWishlist(), so rendering a page never creates a wishlist. Looked up once per request.
+ * they use getWishlists() (all the visitor's lists), so rendering a page never creates a wishlist. Looked up once per request.
  */
 final class WishlistExtension extends AbstractExtension
 {
-    private bool $loaded = false;
-
-    private ?WishlistInterface $wishlist = null;
+    /** @var list<WishlistInterface>|null */
+    private ?array $wishlists = null;
 
     public function __construct(
         private readonly WishlistViewFactory $wishlistViewFactory,
@@ -49,27 +48,40 @@ final class WishlistExtension extends AbstractExtension
         return $this->wishlistViewFactory->create($wishlist, $channel);
     }
 
+    /** Items of all the visitor's wishlists (header counter). */
     public function count(): int
     {
-        return $this->wishlist()?->getItems()->count() ?? 0;
+        $count = 0;
+        foreach ($this->wishlists() as $wishlist) {
+            $count += $wishlist->getItems()->count();
+        }
+
+        return $count;
     }
 
+    /** True when the variant is in at least one of the visitor's wishlists (filled heart). */
     public function hasVariant(?ProductVariantInterface $variant): bool
     {
         if (null === $variant) {
             return false;
         }
 
-        return $this->wishlist()?->hasVariant($variant) ?? false;
-    }
-
-    private function wishlist(): ?WishlistInterface
-    {
-        if (!$this->loaded) {
-            $this->wishlist = $this->wishlistContext->findWishlist();
-            $this->loaded = true;
+        foreach ($this->wishlists() as $wishlist) {
+            if ($wishlist->hasVariant($variant)) {
+                return true;
+            }
         }
 
-        return $this->wishlist;
+        return false;
+    }
+
+    /** @return list<WishlistInterface> */
+    private function wishlists(): array
+    {
+        if (null === $this->wishlists) {
+            $this->wishlists = $this->wishlistContext->getWishlists();
+        }
+
+        return $this->wishlists;
     }
 }
