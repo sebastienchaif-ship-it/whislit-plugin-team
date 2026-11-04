@@ -11,4 +11,31 @@ services:
             - '../src/Entity/'
             - '../src/Migrations/'
             - '../src/Repository/'
+            # Resource controller: registered by sylius_resource (classes.controller), not autowired.
+            - '../src/Controller/'
+            # Explicit definitions below.
+            - '../src/Factory/'
+            - '../src/Form/'
             - '../src/PsSummitSyliusWishlistPlugin.php'
+
+    # Public: used from route expressions (_sylius.repository) and from WishlistController::get().
+    ps_summit_wishlist.context.wishlist:
+        alias: PsSummit\SyliusWishlistPlugin\Context\WishlistContextInterface
+        public: true
+
+    ps_summit_wishlist.adder.wishlist_items_to_cart:
+        alias: PsSummit\SyliusWishlistPlugin\Adder\WishlistItemsToCartAdder
+        public: true
+
+    PsSummit\SyliusWishlistPlugin\Factory\WishlistItemFactory:
+        autowire: true
+        autoconfigure: true
+        decorates: ps_summit_wishlist.factory.wishlist_item
+        arguments:
+            $decoratedFactory: '@.inner'
+
+    PsSummit\SyliusWishlistPlugin\Form\Type\WishlistItemType:
+        arguments:
+            - '%ps_summit_wishlist.model.wishlist_item.class%'
+            - ['sylius']
+        tags: [form.type]

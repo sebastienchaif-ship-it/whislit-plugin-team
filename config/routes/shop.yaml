@@ -4,27 +4,59 @@
 #     prefix: /{_locale}
 #     requirements:
 #         _locale: ^[A-Za-z]{2,4}(_([A-Za-z]{4}|[0-9]{3}))?(_([A-Za-z]{2}|[0-9]{3}))?$
+#
+# All routes use the Sylius ResourceBundle controllers of the plugin resources:
+# ps_summit_wishlist.controller.wishlist (WishlistController) and ps_summit_wishlist.controller.wishlist_item.
+# "ps_summit_wishlist.context.wishlist" resolves the current shopper's wishlist (customer or guest cookie).
 
 ps_summit_wishlist_show:
     path: /wishlist
     methods: [GET]
-    controller: PsSummit\SyliusWishlistPlugin\Controller\Shop\ShowWishlistAction
+    defaults:
+        _controller: ps_summit_wishlist.controller.wishlist::showAction
+        _sylius:
+            section: shop
+            template: '@PsSummitSyliusWishlistPlugin/shop/wishlist/show.html.twig'
+            repository:
+                method: ['expr:service("ps_summit_wishlist.context.wishlist")', getWishlistForDisplay]
 
 ps_summit_wishlist_add:
     path: /wishlist/add/{variantId}
     methods: [POST]
-    controller: PsSummit\SyliusWishlistPlugin\Controller\Shop\AddToWishlistAction
     requirements:
         variantId: \d+
+    defaults:
+        _controller: ps_summit_wishlist.controller.wishlist_item::createAction
+        _sylius:
+            section: shop
+            factory:
+                method: createForCurrentWishlistAndVariant
+                arguments: [$variantId]
+            flash: ps_summit_wishlist.added_to_wishlist
+            redirect: referer
 
 ps_summit_wishlist_remove:
     path: /wishlist/remove/{itemId}
     methods: [POST]
-    controller: PsSummit\SyliusWishlistPlugin\Controller\Shop\RemoveFromWishlistAction
     requirements:
         itemId: \d+
+    defaults:
+        _controller: ps_summit_wishlist.controller.wishlist_item::deleteAction
+        _sylius:
+            section: shop
+            repository:
+                method: ['expr:service("ps_summit_wishlist.context.wishlist")', findItem]
+                arguments: [$itemId]
+            flash: ps_summit_wishlist.removed_from_wishlist
+            redirect: referer
 
 ps_summit_wishlist_add_to_cart:
     path: /wishlist/add-to-cart
     methods: [POST]
-    controller: PsSummit\SyliusWishlistPlugin\Controller\Shop\AddWishlistItemsToCartAction
+    defaults:
+        _controller: ps_summit_wishlist.controller.wishlist::addToCartAction
+        _sylius:
+            section: shop
+            repository:
+                method: ['expr:service("ps_summit_wishlist.context.wishlist")', getWishlistForDisplay]
+            redirect: ps_summit_wishlist_show

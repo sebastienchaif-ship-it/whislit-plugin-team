@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PsSummit\SyliusWishlistPlugin\Context;
 
 use PsSummit\SyliusWishlistPlugin\Entity\WishlistInterface;
+use PsSummit\SyliusWishlistPlugin\Entity\WishlistItemInterface;
 use PsSummit\SyliusWishlistPlugin\Repository\WishlistRepositoryInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
@@ -76,6 +77,30 @@ final class WishlistContext implements WishlistContextInterface
         $this->requestStack->getMainRequest()?->attributes->set(self::NEW_TOKEN_ATTRIBUTE, $token);
 
         return $wishlist;
+    }
+
+    public function getWishlistForDisplay(): WishlistInterface
+    {
+        $wishlist = $this->findWishlist();
+        if (null !== $wishlist) {
+            return $wishlist;
+        }
+
+        $wishlist = $this->wishlistFactory->createNew();
+        $wishlist->setChannel($this->channelContext->getChannel());
+
+        return $wishlist;
+    }
+
+    public function findItem(int|string $itemId): ?WishlistItemInterface
+    {
+        foreach ($this->findWishlist()?->getItems() ?? [] as $item) {
+            if ((string) $item->getId() === (string) $itemId) {
+                return $item;
+            }
+        }
+
+        return null;
     }
 
     private function getCustomer(): ?CustomerInterface
