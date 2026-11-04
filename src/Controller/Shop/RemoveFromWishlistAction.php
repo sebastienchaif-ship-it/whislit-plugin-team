@@ -13,7 +13,6 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Csrf\Exception\InvalidCsrfTokenException;
 
 #[AsController]
 final class RemoveFromWishlistAction
@@ -32,7 +31,10 @@ final class RemoveFromWishlistAction
     public function __invoke(Request $request, int $itemId): Response
     {
         if (!$this->csrfTokenManager->isTokenValid(new CsrfToken(self::CSRF_TOKEN_ID, (string) $request->request->get('_csrf_token')))) {
-            throw new InvalidCsrfTokenException();
+            // Expired or forged token: no change, tell the shopper and go back.
+            $request->getSession()->getFlashBag()->add('error', 'ps_summit_wishlist.invalid_csrf_token');
+
+            return $this->redirectBackResolver->redirectBack($request);
         }
 
         // Look the item up inside the current wishlist only: nobody can remove items from someone else's wishlist.

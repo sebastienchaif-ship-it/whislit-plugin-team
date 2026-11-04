@@ -22,7 +22,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Csrf\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -54,7 +53,10 @@ final class AddWishlistItemsToCartAction
     public function __invoke(Request $request): Response
     {
         if (!$this->csrfTokenManager->isTokenValid(new CsrfToken(self::CSRF_TOKEN_ID, (string) $request->request->get('_csrf_token')))) {
-            throw new InvalidCsrfTokenException();
+            // Expired or forged token: no change, tell the shopper and go back.
+            $request->getSession()->getFlashBag()->add('error', 'ps_summit_wishlist.invalid_csrf_token');
+
+            return $this->redirectBackResolver->redirectToWishlist();
         }
 
         $flashBag = $request->getSession()->getFlashBag();
