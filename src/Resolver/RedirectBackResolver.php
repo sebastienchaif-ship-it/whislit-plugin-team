@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PsSummit\SyliusWishlistPlugin\Controller\Shop;
+namespace PsSummit\SyliusWishlistPlugin\Resolver;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

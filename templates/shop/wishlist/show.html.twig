@@ -5,6 +5,8 @@
 {% block title %}{{ 'ps_summit_wishlist.ui.wishlist'|trans }} | {{ parent() }}{% endblock %}
 
 {% block content %}
+{# `wishlist` is the Sylius resource (showAction); turn it into display data: items with name, image, price, available. #}
+{% set wishlist = ps_summit_wishlist_view(wishlist) %}
 <div class="container my-5" {{ sylius_test_html_attribute('wishlist-page') }}>
     <h1 class="h2 mb-4">{{ 'ps_summit_wishlist.ui.wishlist'|trans }}</h1>
 
@@ -75,7 +77,7 @@
                                 </button>
                             </form>
                             <form method="post" action="{{ path('ps_summit_wishlist_remove', {'itemId': item.id}) }}" class="d-inline">
-                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_remove') }}">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token(item.id) }}">
                                 <button type="submit" class="btn btn-sm btn-outline-danger"
                                         {{ sylius_test_html_attribute('wishlist-item-remove') }}>
                                     {{ 'ps_summit_wishlist.ui.remove'|trans }}
