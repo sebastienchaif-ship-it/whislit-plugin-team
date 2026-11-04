@@ -1,5 +1,11 @@
 sylius_twig_hooks:
     hooks:
+        # Header: heart link to the wishlist page, between the account links and the cart
+        'sylius_shop.base.header.content':
+            ps_summit_wishlist_link:
+                template: '@PsSummitSyliusWishlistPlugin/shop/wishlist/_header_link.html.twig'
+                priority: 150
+
         # Product page (PDP): hidden wishlist form, outside the add to cart form
         'sylius_shop.product.show.content.info.summary':
             ps_summit_wishlist_form:
