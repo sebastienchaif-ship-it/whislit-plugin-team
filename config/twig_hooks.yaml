@@ -1,0 +1,13 @@
+sylius_twig_hooks:
+    hooks:
+        # Product detail page (PDP): below the add to cart form
+        'sylius_shop.product.show.content.info.summary':
+            ps_summit_wishlist_add:
+                template: '@PsSummitSyliusWishlistPlugin/shop/wishlist/_add_button.html.twig'
+                priority: 50
+
+        # Product listing page (PLP) and every product card
+        'sylius_shop.shared.product.card':
+            ps_summit_wishlist_add:
+                template: '@PsSummitSyliusWishlistPlugin/shop/wishlist/_add_button.html.twig'
+                priority: -100

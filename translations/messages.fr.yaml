@@ -1,0 +1,14 @@
+ps_summit_wishlist:
+    ui:
+        add_to_wishlist: Ajouter à ma liste d'envies
+        wishlist: Liste d'envies
+        added: Le produit a été ajouté à votre liste d'envies.
+        already_in_wishlist: Ce produit est déjà dans votre liste d'envies.
+        removed: Le produit a été retiré de votre liste d'envies.
+        empty: Votre liste d'envies est vide.
+        continue_shopping: Continuer mes achats
+        remove: Retirer
+        add_to_cart: Ajouter au panier
+        add_selected_to_cart: Ajouter la sélection au panier
+        unavailable: Indisponible
+        added_to_cart: Les produits sélectionnés ont été ajoutés à votre panier.

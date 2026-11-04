@@ -1,6 +1,33 @@
-# Shop routes of the plugin, imported by the host application (config/routes/ps_summit_wishlist.yaml):
+# Shop routes of the plugin (team contract, 04/11/2026). Imported by the host application
+# (config/routes/ps_summit_wishlist.yaml):
 # ps_summit_wishlist_shop:
 #     resource: "@PsSummitSyliusWishlistPlugin/config/routes/shop.yaml"
 #     prefix: /{_locale}
 #     requirements:
 #         _locale: ^[A-Za-z]{2,4}(_([A-Za-z]{4}|[0-9]{3}))?(_([A-Za-z]{2}|[0-9]{3}))?$
+#
+# Controller actions are implemented by the back end team.
+
+ps_summit_wishlist_show:
+    path: /wishlist
+    methods: [GET]
+    controller: PsSummit\SyliusWishlistPlugin\Controller\WishlistController::show
+
+ps_summit_wishlist_add:
+    path: /wishlist/add/{variantId}
+    methods: [POST]
+    controller: PsSummit\SyliusWishlistPlugin\Controller\WishlistController::add
+    requirements:
+        variantId: \d+
+
+ps_summit_wishlist_remove:
+    path: /wishlist/remove/{itemId}
+    methods: [POST]
+    controller: PsSummit\SyliusWishlistPlugin\Controller\WishlistController::remove
+    requirements:
+        itemId: \d+
+
+ps_summit_wishlist_add_to_cart:
+    path: /wishlist/add-to-cart
+    methods: [POST]
+    controller: PsSummit\SyliusWishlistPlugin\Controller\WishlistController::addToCart
