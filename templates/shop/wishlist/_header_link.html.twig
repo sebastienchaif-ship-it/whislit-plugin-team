@@ -1,10 +1,10 @@
-{# Header: heart link to the wishlist page with a counter badge, on the left of the cart. #}
+{# Header: heart link to the "My wishlists" page with a counter badge (items of all lists), on the left of the cart. #}
 {% set wishlist_count = ps_summit_wishlist_count() %}
 <div class="col-auto">
-    <a href="{{ path('ps_summit_wishlist_show') }}"
+    <a href="{{ path('ps_summit_wishlist_index') }}"
        class="btn btn-icon btn-transparent px-0 position-relative text-danger"
-       title="{{ 'ps_summit_wishlist.ui.wishlist'|trans }}"
-       aria-label="{{ 'ps_summit_wishlist.ui.wishlist'|trans }} ({{ wishlist_count }})"
+       title="{{ 'ps_summit_wishlist.ui.my_wishlists'|trans }}"
+       aria-label="{{ 'ps_summit_wishlist.ui.my_wishlists'|trans }} ({{ wishlist_count }})"
        {{ sylius_test_html_attribute('wishlist-header-link') }}>
         {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' with {filled: wishlist_count > 0} %}
         {% if wishlist_count > 0 %}
