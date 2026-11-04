@@ -1,6 +1,7 @@
 {# Product card (PLP and product lists): heart over the top right corner of the image. #}
 {% set product = hookable_metadata.context.product %}
 {% set variant = product|sylius_resolve_variant %}
+{% set in_wishlist = ps_summit_wishlist_has_variant(variant) %}
 
 {% if variant is not null %}
     <div class="position-relative" style="height: 0; z-index: 2;">
@@ -11,9 +12,10 @@
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_add') }}">
             <button type="submit"
                     class="btn btn-light rounded-circle shadow-sm p-2 lh-1 text-danger"
-                    title="{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}"
-                    aria-label="{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}: {{ product.name }}">
-                {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' %}
+                    title="{{ (in_wishlist ? 'ps_summit_wishlist.ui.in_wishlist' : 'ps_summit_wishlist.ui.add_to_wishlist')|trans }}"
+                    aria-pressed="{{ in_wishlist ? 'true' : 'false' }}"
+                    aria-label="{{ (in_wishlist ? 'ps_summit_wishlist.ui.in_wishlist' : 'ps_summit_wishlist.ui.add_to_wishlist')|trans }}: {{ product.name }}">
+                {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' with {filled: in_wishlist} %}
             </button>
         </form>
     </div>

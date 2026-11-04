@@ -1,6 +1,7 @@
 ps_summit_wishlist:
     ui:
         add_to_wishlist: Ajouter à ma liste d'envies
+        in_wishlist: Dans votre liste d'envies
         wishlist: Liste d'envies
         added: Le produit a été ajouté à votre liste d'envies.
         already_in_wishlist: Ce produit est déjà dans votre liste d'envies.

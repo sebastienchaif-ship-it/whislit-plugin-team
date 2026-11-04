@@ -1,6 +1,7 @@
 ps_summit_wishlist:
     ui:
         add_to_wishlist: Add to Wishlist
+        in_wishlist: In your wishlist
         wishlist: Wishlist
         added: The product was added to your wishlist.
         already_in_wishlist: This product is already in your wishlist.

@@ -2,6 +2,7 @@
    The heart next to "Add to cart" submits it with form= and formaction= (selected variant). #}
 {% set product = hookable_metadata.context.product %}
 {% set variant = product|sylius_resolve_variant %}
+{% set in_wishlist = ps_summit_wishlist_has_variant(variant) %}
 {% set cart_form_shown = not (product.enabledVariants.empty() or product.simple and not sylius_inventory_is_available(product.enabledVariants.first)) %}
 
 {% if variant is not null %}
@@ -12,9 +13,10 @@
         {% if not cart_form_shown %}
             {# Out of stock: no add to cart form, so the heart is shown here. #}
             <button type="submit" class="btn btn-outline-danger"
-                    title="{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}"
-                    aria-label="{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}">
-                {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' %}
+                    title="{{ (in_wishlist ? 'ps_summit_wishlist.ui.in_wishlist' : 'ps_summit_wishlist.ui.add_to_wishlist')|trans }}"
+                    aria-pressed="{{ in_wishlist ? 'true' : 'false' }}"
+                    aria-label="{{ (in_wishlist ? 'ps_summit_wishlist.ui.in_wishlist' : 'ps_summit_wishlist.ui.add_to_wishlist')|trans }}">
+                {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' with {filled: in_wishlist} %}
             </button>
         {% endif %}
     </form>
