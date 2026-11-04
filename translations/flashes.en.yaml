@@ -7,3 +7,7 @@ ps_summit_wishlist:
     no_item_selected: Select at least one product to add to your cart.
     added_to_cart: '{1} 1 product has been added to your cart.|]1,Inf[ %count% products have been added to your cart.'
     not_added_to_cart: '{1} 1 product is not available and was not added to your cart.|]1,Inf[ %count% products are not available and were not added to your cart.'
+    wishlist_created: The wishlist has been created.
+    wishlist_renamed: The wishlist has been renamed.
+    wishlist_deleted: The wishlist has been deleted.
+    moved_to_wishlist: 'The product has been moved to "%name%".'

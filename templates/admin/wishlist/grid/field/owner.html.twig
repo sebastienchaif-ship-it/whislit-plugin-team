@@ -1,0 +1,8 @@
+{# data: the wishlist. Customer name and email, or "Guest" for a cookie-identified visitor. #}
+{% set customer = data.customer %}
+{% if customer is not null %}
+    <strong>{{ customer.fullName|default(customer.email) }}</strong>
+    <div class="fs-5 text-secondary">{{ customer.email }}</div>
+{% else %}
+    <span class="badge">{{ 'ps_summit_wishlist.ui.guest'|trans }}</span>
+{% endif %}

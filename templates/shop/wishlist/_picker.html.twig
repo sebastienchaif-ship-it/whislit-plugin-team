@@ -1,0 +1,56 @@
+{#
+    Destination picker (Stage 2): the heart opens a Bootstrap dropdown listing the visitor's wishlists.
+    Each entry is a submit button of the add form with name="wishlistId" (no entry = default list, Stage 1 behaviour).
+    Parameters:
+      variant         the product variant to add
+      label_suffix    text appended to the toggle aria-label (product name), optional
+      toggle_class    classes of the heart button
+      form            id of the add form when the buttons live outside it (PDP), optional
+      formaction      add URL used with form, optional
+      picker_id       unique id on the page
+#}
+{% set lists = ps_summit_wishlists() %}
+{% set in_wishlist = ps_summit_wishlist_has_variant(variant) %}
+{% set toggle_label = (in_wishlist ? 'ps_summit_wishlist.ui.in_wishlist' : 'ps_summit_wishlist.ui.add_to_wishlist')|trans ~ (label_suffix|default ? ': ' ~ label_suffix : '') %}
+{% set form_attributes %}{% if form|default %} form="{{ form }}" formaction="{{ formaction }}"{% endif %}{% endset %}
+
+<div class="dropdown ps-summit-wishlist-picker">
+    <button type="button" id="{{ picker_id }}-toggle"
+            class="{{ toggle_class }} dropdown-toggle ps-summit-wishlist-picker-toggle"
+            data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false"
+            title="{{ toggle_label }}" aria-label="{{ toggle_label }}"
+            {{ sylius_test_html_attribute('wishlist-picker-toggle') }}>
+        {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' with {filled: in_wishlist} %}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="{{ picker_id }}-toggle"
+        {{ sylius_test_html_attribute('wishlist-picker') }}>
+        <li><h6 class="dropdown-header">{{ 'ps_summit_wishlist.ui.choose_wishlist'|trans }}</h6></li>
+        {% for list in lists %}
+            {% set in_list = variant is not null and list.hasVariant(variant) %}
+            <li>
+                <button type="submit" name="wishlistId" value="{{ list.id }}"{{ form_attributes }}
+                        class="dropdown-item d-flex align-items-center gap-2"
+                        aria-label="{{ 'ps_summit_wishlist.ui.add_to_named_wishlist'|trans({'%name%': list.name}) }}{{ in_list ? ' (' ~ 'ps_summit_wishlist.ui.in_wishlist'|trans ~ ')' }}"
+                        {{ sylius_test_html_attribute('wishlist-picker-item', list.name) }}>
+                    <span class="text-danger">{% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' with {filled: in_list} %}</span>
+                    <span class="me-auto">{{ list.name }}</span>
+                </button>
+            </li>
+        {% else %}
+            {# No list yet: no wishlistId, the back end creates the default list (Stage 1 behaviour). #}
+            <li>
+                <button type="submit"{{ form_attributes }} class="dropdown-item d-flex align-items-center gap-2"
+                        {{ sylius_test_html_attribute('wishlist-picker-item', 'default') }}>
+                    <span class="text-danger">{% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' with {filled: false} %}</span>
+                    <span>{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}</span>
+                </button>
+            </li>
+        {% endfor %}
+        <li><hr class="dropdown-divider"></li>
+        <li>
+            <a class="dropdown-item small" href="{{ path('ps_summit_wishlist_index') }}" {{ sylius_test_html_attribute('wishlist-picker-new') }}>
+                + {{ 'ps_summit_wishlist.ui.new_wishlist'|trans }} / {{ 'ps_summit_wishlist.ui.see_my_wishlists'|trans }}
+            </a>
+        </li>
+    </ul>
+</div>

@@ -1,20 +1,20 @@
-{# Product card (PLP and product lists): heart over the top right corner of the image. #}
+{# Product card (PLP and product lists): heart over the top right corner of the image, opens the destination picker. #}
 {% set product = hookable_metadata.context.product %}
 {% set variant = product|sylius_resolve_variant %}
 
 {% if variant is not null %}
-    <div class="position-relative" style="height: 0; z-index: 2;">
+    <div class="position-relative" style="height: 0; z-index: 3;">
         <form method="post"
               action="{{ path('ps_summit_wishlist_add', {'variantId': variant.id}) }}"
               class="ps-summit-wishlist-add position-absolute top-0 end-0 m-2"
               {{ sylius_test_html_attribute('wishlist-add', product.code) }}>
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_add') }}">
-            <button type="submit"
-                    class="btn btn-light rounded-circle shadow-sm p-2 lh-1 text-danger"
-                    title="{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}"
-                    aria-label="{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}: {{ product.name }}">
-                {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' %}
-            </button>
+            {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_picker.html.twig' with {
+                variant: variant,
+                label_suffix: product.name,
+                toggle_class: 'btn btn-light rounded-circle shadow-sm p-2 lh-1 text-danger',
+                picker_id: 'ps-summit-wishlist-card-' ~ product.id,
+            } only %}
         </form>
     </div>
 {% endif %}

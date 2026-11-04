@@ -2,13 +2,54 @@
 
 {% import '@SyliusShop/shared/macro/money.html.twig' as money %}
 
-{% block title %}{{ 'ps_summit_wishlist.ui.wishlist'|trans }} | {{ parent() }}{% endblock %}
+{% block title %}{{ wishlist.name|default('ps_summit_wishlist.ui.wishlist'|trans) }} | {{ parent() }}{% endblock %}
 
 {% block content %}
 {# `wishlist` is the Sylius resource (showAction); turn it into display data: items with name, image, price, available. #}
 {% set wishlist = ps_summit_wishlist_view(wishlist) %}
 <div class="container my-5" {{ sylius_test_html_attribute('wishlist-page') }}>
-    <h1 class="h2 mb-4">{{ 'ps_summit_wishlist.ui.wishlist'|trans }}</h1>
+    {# Stage 2: the visitor's other lists, for the "move to" select. #}
+    {% set other_lists = wishlist.id ? ps_summit_wishlists()|filter(l => l.id != wishlist.id) : [] %}
+
+    <nav aria-label="breadcrumb" class="mb-2">
+        <a href="{{ path('ps_summit_wishlist_index') }}" class="link-secondary small" {{ sylius_test_html_attribute('wishlist-back-to-index') }}>
+            &larr; {{ 'ps_summit_wishlist.ui.my_wishlists'|trans }}
+        </a>
+    </nav>
+
+    <div class="d-flex flex-wrap align-items-start gap-2 mb-4">
+        <h1 class="h2 mb-0 me-auto" {{ sylius_test_html_attribute('wishlist-name') }}>{{ wishlist.name|default('ps_summit_wishlist.ui.wishlist'|trans) }}</h1>
+
+        {% if wishlist.id %}
+            {# Rename: inline form, opened with a native <details> (keyboard friendly, no JavaScript). #}
+            <details class="ps-summit-wishlist-rename">
+                <summary class="btn btn-sm btn-outline-secondary" {{ sylius_test_html_attribute('wishlist-rename-toggle') }}>{{ 'ps_summit_wishlist.ui.rename'|trans }}</summary>
+                <form method="post" action="{{ path('ps_summit_wishlist_rename', {'id': wishlist.id}) }}" class="d-flex gap-2 mt-2"
+                      {{ sylius_test_html_attribute('wishlist-rename') }}>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_rename') }}">
+                    <label for="ps-summit-wishlist-rename-name" class="visually-hidden">{{ 'ps_summit_wishlist.ui.wishlist_name'|trans }}</label>
+                    <input type="text" id="ps-summit-wishlist-rename-name" name="name" value="{{ wishlist.name }}"
+                           class="form-control form-control-sm" maxlength="255" required pattern=".*\S.*"
+                           title="{{ 'ps_summit_wishlist.ui.name_required'|trans }}"
+                           {{ sylius_test_html_attribute('wishlist-rename-name') }}>
+                    <button type="submit" class="btn btn-sm btn-primary" {{ sylius_test_html_attribute('wishlist-rename-submit') }}>{{ 'ps_summit_wishlist.ui.save'|trans }}</button>
+                </form>
+            </details>
+
+            {# Delete: two steps, the real submit button only appears after "Delete this list". #}
+            <details class="ps-summit-wishlist-delete">
+                <summary class="btn btn-sm btn-outline-danger" {{ sylius_test_html_attribute('wishlist-delete-toggle') }}>{{ 'ps_summit_wishlist.ui.delete_wishlist'|trans }}</summary>
+                <form method="post" action="{{ path('ps_summit_wishlist_delete', {'id': wishlist.id}) }}"
+                      class="alert alert-danger mt-2 mb-0 p-2 small" role="alertdialog" aria-labelledby="ps-summit-wishlist-delete-text"
+                      {{ sylius_test_html_attribute('wishlist-delete') }}>
+                    {# Native Sylius deleteAction: the CSRF token id is the resource id. #}
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token(wishlist.id ~ '') }}">
+                    <p id="ps-summit-wishlist-delete-text" class="mb-2">{{ 'ps_summit_wishlist.ui.delete_confirm'|trans({'%name%': wishlist.name}) }}</p>
+                    <button type="submit" class="btn btn-sm btn-danger" {{ sylius_test_html_attribute('wishlist-delete-confirm') }}>{{ 'ps_summit_wishlist.ui.delete_confirm_button'|trans }}</button>
+                </form>
+            </details>
+        {% endif %}
+    </div>
 
     {% if wishlist.empty %}
         <div class="alert alert-light border text-center py-5" {{ sylius_test_html_attribute('wishlist-empty') }}>
@@ -19,6 +60,7 @@
         {# Bulk form: the row checkboxes (items[]) point to it with form=. Row buttons have their own forms. #}
         <form method="post" id="ps-summit-wishlist-bulk" action="{{ path('ps_summit_wishlist_add_to_cart') }}">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_add_to_cart') }}">
+            {% if wishlist.id %}<input type="hidden" name="wishlistId" value="{{ wishlist.id }}">{% endif %}
         </form>
 
         <div class="table-responsive">
@@ -70,12 +112,28 @@
                         <td class="text-end text-nowrap">
                             <form method="post" action="{{ path('ps_summit_wishlist_add_to_cart') }}" class="d-inline">
                                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_add_to_cart') }}">
+                                {% if wishlist.id %}<input type="hidden" name="wishlistId" value="{{ wishlist.id }}">{% endif %}
                                 <input type="hidden" name="items[]" value="{{ item.id }}">
                                 <button type="submit" class="btn btn-sm btn-primary" {% if not item.available %}disabled{% endif %}
                                         {{ sylius_test_html_attribute('wishlist-item-add-to-cart') }}>
                                     {{ 'ps_summit_wishlist.ui.add_to_cart'|trans }}
                                 </button>
                             </form>
+                            {% if other_lists is not empty %}
+                                <form method="post" action="{{ path('ps_summit_wishlist_move', {'itemId': item.id}) }}" class="d-inline-flex gap-1 align-middle"
+                                      {{ sylius_test_html_attribute('wishlist-item-move') }}>
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_move') }}">
+                                    <label for="ps-summit-wishlist-move-{{ item.id }}" class="visually-hidden">{{ 'ps_summit_wishlist.ui.move_to'|trans }}: {{ item.name }}</label>
+                                    <select id="ps-summit-wishlist-move-{{ item.id }}" name="targetWishlistId" class="form-select form-select-sm w-auto" required
+                                            {{ sylius_test_html_attribute('wishlist-item-move-target') }}>
+                                        <option value="">{{ 'ps_summit_wishlist.ui.move_to'|trans }}</option>
+                                        {% for list in other_lists %}
+                                            <option value="{{ list.id }}">{{ list.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary" {{ sylius_test_html_attribute('wishlist-item-move-submit') }}>{{ 'ps_summit_wishlist.ui.move'|trans }}</button>
+                                </form>
+                            {% endif %}
                             <form method="post" action="{{ path('ps_summit_wishlist_remove', {'itemId': item.id}) }}" class="d-inline">
                                 <input type="hidden" name="_csrf_token" value="{{ csrf_token(item.id) }}">
                                 <button type="submit" class="btn btn-sm btn-outline-danger"

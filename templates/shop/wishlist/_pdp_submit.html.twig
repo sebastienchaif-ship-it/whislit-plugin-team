@@ -1,17 +1,17 @@
-{# Product page: heart on the left of the native "Add to cart" button (same row). #}
+{# Product page: destination picker on the left of the native "Add to cart" button (same row).
+   Its buttons target the external wishlist form (form= / formaction=). #}
 {% set form = hookable_metadata.context.form %}
 {% set variant = form.cartItem.vars.value.variant %}
 
-<div class="d-flex align-items-start gap-2">
+<div class="d-flex align-items-start gap-2" {{ sylius_test_html_attribute('wishlist-add-pdp') }}>
     {% if variant is not null %}
-        <button type="submit" form="ps-summit-wishlist-pdp-form"
-                formaction="{{ path('ps_summit_wishlist_add', {'variantId': variant.id}) }}"
-                class="btn btn-outline-danger"
-                title="{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}"
-                aria-label="{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}"
-                {{ sylius_test_html_attribute('wishlist-add-pdp') }}>
-            {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' %}
-        </button>
+        {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_picker.html.twig' with {
+            variant: variant,
+            toggle_class: 'btn btn-outline-danger',
+            form: 'ps-summit-wishlist-pdp-form',
+            formaction: path('ps_summit_wishlist_add', {'variantId': variant.id}),
+            picker_id: 'ps-summit-wishlist-pdp',
+        } only %}
     {% endif %}
     {% include '@SyliusShop/product/show/content/info/summary/add_to_cart/submit.html.twig' %}
 </div>

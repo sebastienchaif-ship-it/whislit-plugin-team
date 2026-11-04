@@ -1,5 +1,5 @@
 {# Product page: the wishlist form lives outside the add to cart form (no nested forms).
-   The heart next to "Add to cart" submits it with form= and formaction= (selected variant). #}
+   The picker next to "Add to cart" submits it with form= and formaction= (selected variant). #}
 {% set product = hookable_metadata.context.product %}
 {% set variant = product|sylius_resolve_variant %}
 {% set cart_form_shown = not (product.enabledVariants.empty() or product.simple and not sylius_inventory_is_available(product.enabledVariants.first)) %}
@@ -10,12 +10,12 @@
           class="ps-summit-wishlist-add mb-3">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('ps_summit_wishlist_add') }}">
         {% if not cart_form_shown %}
-            {# Out of stock: no add to cart form, so the heart is shown here. #}
-            <button type="submit" class="btn btn-outline-danger"
-                    title="{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}"
-                    aria-label="{{ 'ps_summit_wishlist.ui.add_to_wishlist'|trans }}">
-                {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_heart_icon.html.twig' %}
-            </button>
+            {# Out of stock: no add to cart form, so the picker is shown here. #}
+            {% include '@PsSummitSyliusWishlistPlugin/shop/wishlist/_picker.html.twig' with {
+                variant: variant,
+                toggle_class: 'btn btn-outline-danger',
+                picker_id: 'ps-summit-wishlist-pdp-oos',
+            } only %}
         {% endif %}
     </form>
 {% endif %}

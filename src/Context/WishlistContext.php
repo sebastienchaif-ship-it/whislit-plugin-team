@@ -15,9 +15,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Resolves the wishlist of the current shopper:
- * - logged-in customer: wishlist linked to the customer (persists across logins);
- * - guest: wishlist linked to a random token stored in a cookie (survives page refreshes).
+ * Resolves the wishlists of the current visitor:
+ * - logged-in customer: wishlists linked to the customer (persist across logins);
+ * - guest: wishlists linked to a random token stored in a cookie (survive page refreshes),
+ *   all the guest's wishlists share the same token.
  */
 final class WishlistContext implements WishlistContextInterface
 {
@@ -38,21 +39,26 @@ final class WishlistContext implements WishlistContextInterface
     ) {
     }
 
-    public function findWishlist(): ?WishlistInterface
+    public function getWishlists(): array
     {
         $channel = $this->channelContext->getChannel();
         $customer = $this->getCustomer();
 
         if (null !== $customer) {
-            return $this->wishlistRepository->findOneByCustomerAndChannel($customer, $channel);
+            return array_values($this->wishlistRepository->findAllByCustomerAndChannel($customer, $channel));
         }
 
         $token = $this->getGuestToken();
         if (null === $token) {
-            return null;
+            return [];
         }
 
-        return $this->wishlistRepository->findOneByTokenAndChannel($token, $channel);
+        return array_values($this->wishlistRepository->findAllByTokenAndChannel($token, $channel));
+    }
+
+    public function findWishlist(): ?WishlistInterface
+    {
+        return $this->getWishlists()[0] ?? null;
     }
 
     public function getOrCreateWishlist(): WishlistInterface
@@ -62,19 +68,8 @@ final class WishlistContext implements WishlistContextInterface
             return $wishlist;
         }
 
-        $wishlist = $this->wishlistFactory->createNew();
-        $wishlist->setChannel($this->channelContext->getChannel());
-
-        $customer = $this->getCustomer();
-        if (null !== $customer) {
-            $wishlist->setCustomer($customer);
-
-            return $wishlist;
-        }
-
-        $token = bin2hex(random_bytes(32));
-        $wishlist->setToken($token);
-        $this->requestStack->getMainRequest()?->attributes->set(self::NEW_TOKEN_ATTRIBUTE, $token);
+        $wishlist = $this->createWishlist();
+        $wishlist->setName(self::DEFAULT_WISHLIST_NAME);
 
         return $wishlist;
     }
@@ -88,15 +83,68 @@ final class WishlistContext implements WishlistContextInterface
 
         $wishlist = $this->wishlistFactory->createNew();
         $wishlist->setChannel($this->channelContext->getChannel());
+        $wishlist->setName(self::DEFAULT_WISHLIST_NAME);
+
+        return $wishlist;
+    }
+
+    public function findWishlistById(int|string|null $wishlistId): ?WishlistInterface
+    {
+        if (null === $wishlistId || '' === $wishlistId) {
+            return null;
+        }
+
+        foreach ($this->getWishlists() as $wishlist) {
+            if ((string) $wishlist->getId() === (string) $wishlistId) {
+                return $wishlist;
+            }
+        }
+
+        return null;
+    }
+
+    public function getOrCreateWishlistById(int|string|null $wishlistId): ?WishlistInterface
+    {
+        if (null === $wishlistId || '' === $wishlistId) {
+            return $this->getOrCreateWishlist();
+        }
+
+        return $this->findWishlistById($wishlistId);
+    }
+
+    public function getWishlistByIdForDisplay(int|string|null $wishlistId): ?WishlistInterface
+    {
+        if (null === $wishlistId || '' === $wishlistId) {
+            return $this->getWishlistForDisplay();
+        }
+
+        return $this->findWishlistById($wishlistId);
+    }
+
+    public function createWishlist(): WishlistInterface
+    {
+        $wishlist = $this->wishlistFactory->createNew();
+        $wishlist->setChannel($this->channelContext->getChannel());
+
+        $customer = $this->getCustomer();
+        if (null !== $customer) {
+            $wishlist->setCustomer($customer);
+
+            return $wishlist;
+        }
+
+        $wishlist->setToken($this->getOrCreateGuestToken());
 
         return $wishlist;
     }
 
     public function findItem(int|string $itemId): ?WishlistItemInterface
     {
-        foreach ($this->findWishlist()?->getItems() ?? [] as $item) {
-            if ((string) $item->getId() === (string) $itemId) {
-                return $item;
+        foreach ($this->getWishlists() as $wishlist) {
+            foreach ($wishlist->getItems() as $item) {
+                if ((string) $item->getId() === (string) $itemId) {
+                    return $item;
+                }
             }
         }
 
@@ -117,8 +165,22 @@ final class WishlistContext implements WishlistContextInterface
 
     private function getGuestToken(): ?string
     {
-        $token = $this->requestStack->getMainRequest()?->cookies->get(self::COOKIE_NAME);
+        $request = $this->requestStack->getMainRequest();
+        $token = $request?->attributes->get(self::NEW_TOKEN_ATTRIBUTE) ?? $request?->cookies->get(self::COOKIE_NAME);
 
         return is_string($token) && '' !== $token ? $token : null;
+    }
+
+    private function getOrCreateGuestToken(): string
+    {
+        $token = $this->getGuestToken();
+        if (null !== $token) {
+            return $token;
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $this->requestStack->getMainRequest()?->attributes->set(self::NEW_TOKEN_ATTRIBUTE, $token);
+
+        return $token;
     }
 }

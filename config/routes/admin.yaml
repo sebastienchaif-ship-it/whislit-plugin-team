@@ -1,0 +1,16 @@
+# Admin routes of the plugin, imported by the host application (config/routes/ps_summit_wishlist.yaml):
+# ps_summit_wishlist_admin:
+#     resource: "@PsSummitSyliusWishlistPlugin/config/routes/admin.yaml"
+#     prefix: '/%sylius_admin.path_name%'
+#
+# Read-only: index only (ps_summit_wishlist_admin_wishlist_index, /admin/wishlists/).
+
+ps_summit_wishlist_admin_wishlist:
+    resource: |
+        alias: ps_summit_wishlist.wishlist
+        section: admin
+        permission: true
+        templates: "@SyliusAdmin/shared/crud"
+        only: ['index']
+        grid: ps_summit_wishlist_admin_wishlist
+    type: sylius.resource

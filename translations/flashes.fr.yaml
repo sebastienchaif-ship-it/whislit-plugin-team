@@ -7,3 +7,7 @@ ps_summit_wishlist:
     no_item_selected: Sélectionnez au moins un produit à ajouter au panier.
     added_to_cart: '{1} 1 produit a été ajouté à votre panier.|]1,Inf[ %count% produits ont été ajoutés à votre panier.'
     not_added_to_cart: "{1} 1 produit n'est pas disponible et n'a pas été ajouté au panier.|]1,Inf[ %count% produits ne sont pas disponibles et n'ont pas été ajoutés au panier."
+    wishlist_created: La liste d'envies a été créée.
+    wishlist_renamed: La liste d'envies a été renommée.
+    wishlist_deleted: La liste d'envies a été supprimée.
+    moved_to_wishlist: 'Le produit a été déplacé dans « %name% ».'

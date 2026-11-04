@@ -49,7 +49,7 @@ final class WishlistViewFactory
             );
         }
 
-        return new WishlistView($items);
+        return new WishlistView($items, null !== $wishlist->getId() ? (int) $wishlist->getId() : null, $wishlist->getName());
     }
 
     /** @return array{0: ?int, 1: ?int} */
