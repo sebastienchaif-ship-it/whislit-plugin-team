@@ -18,11 +18,11 @@ Status: empty base, no feature yet. Stage 1 (basic wishlist) comes next.
    composer require ps-summit/sylius-wishlist-plugin:dev-main
    ```
 
-   For local development, a path repository works too:
+   For local development (plugin cloned into `sylius/plugins/WishlistPlugin`), from the Sylius root:
 
    ```bash
-   composer config repositories.wishlist path ../whislit-plugin-team
-   composer require ps-summit/sylius-wishlist-plugin:*@dev
+   docker compose exec -T php composer config repositories.wishlist path plugins/WishlistPlugin
+   docker compose exec -T php composer require ps-summit/sylius-wishlist-plugin:*@dev
    ```
 
 2. Enable the bundle in `config/bundles.php`:
@@ -31,11 +31,31 @@ Status: empty base, no feature yet. Stage 1 (basic wishlist) comes next.
    PsSummit\SyliusWishlistPlugin\PsSummitSyliusWishlistPlugin::class => ['all' => true],
    ```
 
-3. Clear the cache:
+3. Import the plugin configuration, e.g. in `config/packages/ps_summit_wishlist.yaml`:
+
+   ```yaml
+   imports:
+       - { resource: "@PsSummitSyliusWishlistPlugin/config/config.yaml" }
+   ```
+
+4. Run the migrations (the plugin registers its own migrations path automatically) and clear the cache:
 
    ```bash
-   bin/console cache:clear
+   docker compose exec -T php bin/console doctrine:migrations:migrate -n
+   docker compose exec -T php bin/console cache:clear
    ```
+
+## Data model
+
+| Resource | Service ids | Table |
+|---|---|---|
+| `ps_summit_wishlist.wishlist` | `ps_summit_wishlist.repository.wishlist`, `ps_summit_wishlist.factory.wishlist` | `ps_summit_wishlist` |
+| `ps_summit_wishlist.wishlist_item` | `ps_summit_wishlist.repository.wishlist_item`, `ps_summit_wishlist.factory.wishlist_item` | `ps_summit_wishlist_item` |
+
+- A `Wishlist` belongs to a channel and either to a customer (`customer`) or to a guest (`token`, stored in a cookie). Unique on `(customer, channel)` and on `token`.
+- A `WishlistItem` points to a `ProductVariant`. Unique on `(wishlist, variant)`, and `Wishlist::addItem()` silently skips a variant that is already there.
+- Lookups: `WishlistRepositoryInterface::findOneByCustomerAndChannel()` and `findOneByTokenAndChannel()` (items and variants are fetch-joined).
+- Deleting a customer, channel or variant cascades to the wishlist rows.
 
 ## Upgrade
 
